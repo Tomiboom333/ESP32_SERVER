@@ -180,5 +180,3 @@ int tActual=millis();
   client.stop();
   Serial.println("[Cliente Desconectado]");
 }
-  git config --global user.email "tomasriquelme1239@gmail.com"
-  git config --global user.name "Tomiboom333"
