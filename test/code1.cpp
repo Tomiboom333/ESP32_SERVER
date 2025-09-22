@@ -1,5 +1,5 @@
 #include <WiFi.h>
-
+#include <Arduino.h>
 // --- Configuración de Red ---
 const char* ssid = "CESJT";
 const char* password = "itisjtsmg";
@@ -41,7 +41,6 @@ const char pagina_html[] PROGMEM = R"rawliteral(
 )rawliteral";
 
 int leds[5]={14,27,26,25,33};
-int tPrevio = 0, tDelay = 450;
 int animacion=0;
 int an1[2][5]={
     {1,0,1,0,1},
@@ -149,31 +148,29 @@ int tActual=millis();
   }
   switch(animacion){
     case 1:
-            Serial.println("Request para animación 1");
-            for(int i=0;i<2;i++){
-               
-                    for(int j=0;j<5;j++){
-                        digitalWrite(leds[j], an1[i][j]);
-                    }
-                    delay(488);
-                
-            }
-            break;
+      Serial.println("Request para animación 1");
+      for(int i=0;i<2;i++){
+         for(int j=0;j<5;j++){
+             digitalWrite(leds[j], an1[i][j]);
+         }
+         delay(488);
+          
+      }
+      break;
     case 2:
-                Serial.println("Request para animación 2");
-                for(int i=0;i<2;i++){
-                    
-                        for(int j=0;j<5;j++){
-                            digitalWrite(leds[j], an2[i][j]);
-                        }
-                        delay(488);
-                    
-                }
-                break;
+      Serial.println("Request para animación 2");
+      for(int i=0;i<2;i++){
+        for(int j=0;j<5;j++){
+            digitalWrite(leds[j], an2[i][j]);
+        }
+        delay(488);
+          
+      }
+      break;
     default: 
-        Serial.println("Request para apagar LEDS");
-        apagar();
-        break;
+      Serial.println("Request para apagar LEDS");
+      apagar();
+      break;
         
   }
   // 5. Cerrar la conexión

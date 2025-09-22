@@ -1,5 +1,5 @@
 #include <WiFi.h>
-
+#include <Arduino.h>
 // --- Configuración de Red ---
 const char* ssid = "CESJT";
 const char* password = "itisjtsmg";
@@ -67,9 +67,8 @@ const char pagina_html[] PROGMEM = R"rawliteral(
 </html>
 )rawliteral";
 int num = 10;
-int tPrevio = 0, tDelay = 450;
 int seg1[7]={22,23,24,25,26,27,28};
-int seg2[7]={22,23,24,25,26,27,28};
+int seg2[7]={11,12,13,14,15,16,17};
 int nums[10][7]={
   {1,1,1,1,1,1,0},//0
   {0,1,1,0,0,0,0},//1
