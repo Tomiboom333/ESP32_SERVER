@@ -1,3 +1,16 @@
+//3. Codificar un servidor web síncrono que simule un controlador de un semáforo con 4 modos: lento, normal, rápido y emergencia. 
+//El modo lento consiste de un rojo de 70 segundos, amarillo de 3 segundos y un verde de 50 segundos. 
+//El modo normal consiste de un rojo de 45 segundos, amarillo de 2 segundos y verde de 65 segundos. 
+//El modo rápido consiste de un rojo de 20 segundos, amarillo de 1 segundo y verde de 40 segundos. 
+//El modo emergencia consiste de rojo y amarillo parpadeante cada 1,5 segundos.
+//Para este control se posee una página web con las siguientes características:
+//◦ Título de primer nivel con leyenda “Semáforo”, todo con mayúsculas, con fuente ‘Impact’, negrita y subrayada de 45px. Utilizar la clase “titulo”.
+//◦ Color del fondo del cuerpo blanco.
+//◦ Todo centrado.
+//◦ 4 botones, uno debajo del otro, de ancho 200px y alto 200px, de color de fondo rojo (lento), amarillo (normal), verde (rápido) y naranja (emergencia); color de texto negro con tamaño de fuente de 23px, borde negro de 3px sólido de radio 100px. Utilizar clase genérica “boton” y clases individuales “lento”, “normal”, “rápido” y “emergencia”.
+//◦ Abajo de todo agregar una sección (span) con la leyenda “Modo: XXX” y reemplazar el XXX por el modo seleccionado en cuestión, el modo solo en negrita.
+
+
 #include <WiFi.h>
 
 // --- Configuración de Red ---
@@ -16,55 +29,91 @@ const char pagina_html[] PROGMEM = R"rawliteral(
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Control LED ESP32</title>
+  <title>Semáforo</title>
   <style>
-    html { font-family: sans-serif; text-align: center; }
-    .btn { display: inline-block; background-color: #4CAF50; border: none; color: white;
-           padding: 16px 30px; text-decoration: none; font-size: 24px; margin: 2px; cursor: pointer; border-radius: 8px; }
-    .btn-off { background-color: #f44336; }
+    body { background: #fff; text-align: center; }
+    .titulo {
+      font-family: Impact, sans-serif;
+      font-size: 45px;
+      font-weight: bold;
+      text-decoration: underline;
+      text-transform: uppercase;
+      margin-bottom: 30px;
+    }
+    .lento { 
+      background-color: red;
+      width: 200px; height: 200px;
+      color: #000;
+      font-size: 23px;
+      border: 3px solid #000;
+      border-radius: 100px;
+      margin: 15px auto;
+      display: block;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .normal { 
+      background-color: yellow; 
+      width: 200px; height: 200px;
+      color: #000;
+      font-size: 23px;
+      border: 3px solid #000;
+      border-radius: 100px;
+      margin: 15px auto;
+      display: block;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .rapido { 
+      background-color: green; 
+      width: 200px; height: 200px;
+      color: #000;
+      font-size: 23px;
+      border: 3px solid #000;
+      border-radius: 100px;
+      margin: 15px auto;
+      display: block;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .emergencia { 
+      backround-color: orange; 
+      width: 200px; height: 200px;
+      color: #000;
+      font-size: 23px;
+      border: 3px solid #000;
+      border-radius: 100px;
+      margin: 15px auto;
+      display: block;
+      font-weight: bold;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
-  <h1>Servidor Web</h1>
-  <p>Control del LED interno</p>
+  <h1 class="titulo">SEMÁFORO</h1>
+
   <p>
-    <a href="/animacion1"><button class="btn">Animación 1</button></a>
+    <a href="/lento"><button class="lento">Lento</button></a>
   </p>
   <p>
-    <a href="/animacion2"><button class="btn">Animación 2</button></a>
+    <a href="/normal"><button class="normal">Normal</button></a>
   </p>
   <p>
-    <a href="/apagar"><button class="btn btn-off">Apagar</button></a>
+    <a href="/rapido"><button class="rapido">Rapido</button></a>
+  </p>
+    <a href="/emergencia"><button class="emergencia">Emergencia</button></a>
   </p>
 </body>
 </html>
 )rawliteral";
 
-int leds[5]={14,27,26,25,33};
-int tPrevio = 0, tDelay = 450;
-int animacion=0;
-int an1[2][5]={
-    {1,0,1,0,1},
-    {0,1,0,1,0}
-};
-
-int an2[2][5]={
-    {1,1,1,0,0},
-    {0,0,1,1,1}
-};
-
-void apagar(){
-    for(int i= 0;i<5;i++){
-        digitalWrite(leds[i], LOW);
-    }
-}
-
+int leds[3] = {1,2,3};
 void setup() {
   Serial.begin(115200);
- for(int i= 0;i<5;i++){
+  for(int i= 0;i<3;i++){
         pinMode(leds[i], OUTPUT);
-        digitalWrite(leds[i], LOW);
-    }
+  }
 
   // --- Conexión a la red Wi-Fi ---
   Serial.print("Conectando a ");
@@ -91,7 +140,7 @@ void setup() {
   server.begin();
 }
 
-
+int modo = 0;
 void loop() {
 int tActual=millis();
   // 1. Esperar a que un cliente se conecte
@@ -117,12 +166,14 @@ int tActual=millis();
         if (currentLine.length() == 0) {
 
           // 3. Interpretar la petición y actuar
-          if (header.indexOf("GET /animacion1") >= 0) {
-            animacion=1;
-          } else if (header.indexOf("GET /animacion2") >= 0) {
-            animacion=2;
-          } else if (header.indexOf("GET /apagar") >= 0) {
-            animacion=0;
+          if (header.indexOf("GET /lento") >= 0) {
+            modo = 1;
+          } else if (header.indexOf("GET /normal") >= 0) {
+            modo = 2;
+          } else if (header.indexOf("GET /rapido") >= 0) {
+            modo = 3;
+          } else if (header.indexOf("GET /emergencia") >= 0) {
+            modo = 4;
           }
 
           // 4. Enviar la respuesta HTTP (construida manualmente)
@@ -147,35 +198,48 @@ int tActual=millis();
       }
     }
   }
-  switch(animacion){
+  switch(modo){
     case 1:
-            Serial.println("Request para animación 1");
-            for(int i=0;i<2;i++){
-               
-                    for(int j=0;j<5;j++){
-                        digitalWrite(leds[j], an1[i][j]);
-                    }
-                    delay(488);
-                
-            }
-            break;
+      Serial.println("Request para modo lento");
+      // Rojo 70s, Amarillo 3s, Verde 50s
+      digitalWrite(leds[0], HIGH); delay(70000);
+      digitalWrite(leds[0], LOW); digitalWrite(leds[1], HIGH); 
+      delay(3000);
+      digitalWrite(leds[1], LOW); digitalWrite(leds[2], HIGH); 
+      delay(50000);
+      digitalWrite(leds[2], LOW);
+      break;
     case 2:
-                Serial.println("Request para animación 2");
-                for(int i=0;i<2;i++){
-                    
-                        for(int j=0;j<5;j++){
-                            digitalWrite(leds[j], an2[i][j]);
-                        }
-                        delay(488);
-                    
-                }
-                break;
-    default: 
-        Serial.println("Request para apagar LEDS");
-        apagar();
-        break;
-        
+      Serial.println("Request para modo normal");
+      // Rojo 45s, Amarillo 2s, Verde 65s
+      digitalWrite(leds[0], HIGH); delay(45000);
+      digitalWrite(leds[0], LOW); digitalWrite(leds[1], HIGH); 
+      delay(2000);
+      digitalWrite(leds[1], LOW); digitalWrite(leds[2], HIGH); 
+      delay(65000);
+      digitalWrite(leds[2], LOW);
+      break;
+    case 3: 
+      // Rojo 20s, Amarillo 1s, Verde 40s
+      digitalWrite(leds[0], HIGH); delay(20000);
+      digitalWrite(leds[0], LOW); digitalWrite(leds[1], HIGH); delay(1000);
+      digitalWrite(leds[1], LOW); digitalWrite(leds[2], HIGH); delay(40000);
+      digitalWrite(leds[2], LOW);
+      break;
+    case 4:
+      // Rojo y amarillo parpadean cada 1.5s
+      for (int i = 0; i < 5; i++) {
+        digitalWrite(leds[0], HIGH); digitalWrite(leds[1], HIGH); 
+        delay(1500);
+        digitalWrite(leds[0], LOW); digitalWrite(leds[1], LOW); 
+        delay(1500);
+      }
+    break;
+    default:
+      modo = 0;
+    break;
   }
+
   // 5. Cerrar la conexión
   client.stop();
   Serial.println("[Cliente Desconectado]");
