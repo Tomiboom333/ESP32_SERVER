@@ -67,9 +67,7 @@ const char pagina_html[] PROGMEM = R"rawliteral(
 </html>
 )rawliteral";
 int num = 10;
-int leds[5]={14,27,26,25,33};
 int tPrevio = 0, tDelay = 450;
-int animacion=0;
 int seg1[7]={22,23,24,25,26,27,28};
 int seg2[7]={22,23,24,25,26,27,28};
 int nums[10][7]={
